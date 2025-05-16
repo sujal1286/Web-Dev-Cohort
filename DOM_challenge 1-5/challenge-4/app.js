@@ -1,50 +1,70 @@
 const textInput = document.getElementById("taskInput");
-const addbtn = document.getElementById("addButton");
-const list = document.getElementById("taskList");
+const addButton = document.getElementById("addButton");
+const List = document.querySelector(".task-list");
 const totalTasks = document.getElementById("totalTasks");
-const completedTasks = document.getElementById("completedTasks");
+const completed = document.getElementById("completedTasks");
 
-let totalTaskCount = 0;
-let completedTaskCount = 0;
 
-addbtn.addEventListener("click", () => {
-  const value = textInput.value.trim();
+let taskArray = [];
 
-  if (value === "") {
-    alert("Task cannot be empty!");
+addButton.addEventListener("click", () => {
+  const task = textInput.value.trim();
+  if (task === "") {
+    alert("Please enter a task");
     return;
   }
 
-
-  const emptyMessage = document.querySelector(".empty-list");
-  if (emptyMessage) {
-    emptyMessage.remove();
+  const emptyItem = document.querySelector(".empty-list");
+  if (emptyItem) {
+    emptyItem.remove();
   }
 
-
   const li = document.createElement("li");
-  li.innerText = value;
   li.classList.add("task-item");
 
-  li.addEventListener("click", () => {
-    li.classList.toggle("completed");
-    li.style.textDecoration = li.classList.contains("completed") ? "line-through" : "none";
-    if (li.classList.contains("completed")) {
-      completedTaskCount++;
-    } else {
-      completedTaskCount--;
-    }
-    updateStats();
+  const checkBox = document.createElement("input");
+  checkBox.type = "checkbox";
+  checkBox.classList.add("complete-checkbox");
+
+  const span = document.createElement("span");
+  span.textContent = task;
+  span.classList.add("task-text");
+
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "Delete";
+  deleteButton.classList.add("delete-button");
+
+ 
+  deleteButton.addEventListener("click", () => {
+    li.remove();
+    taskArray = taskArray.filter(t => t.element !== li); 
+    updateData(); 
   });
 
-  list.appendChild(li);
-  textInput.value = "";
 
-  totalTaskCount++;
-  updateStats();
+  checkBox.addEventListener("change", () => {
+    li.classList.toggle("completed");
+    updateData(); 
+  });
+
+  li.appendChild(checkBox);
+  li.appendChild(span);
+  li.appendChild(deleteButton);
+  List.appendChild(li);
+
+  taskArray.push({ text: task, element: li }); 
+  textInput.value = "";
+  updateData();
 });
 
-function updateStats() {
-  totalTasks.innerText = `Total tasks: ${totalTaskCount}`;
-  completedTasks.innerText = `Completed: ${completedTaskCount}`;
+function updateData() {
+  totalTasks.textContent = `Total tasks: ${taskArray.length}`;
+
+  let completedCount = 0;
+  taskArray.forEach(task => {
+    const check = task.element.querySelector(".complete-checkbox");
+    if (check.checked) completedCount++;
+  });
+
+  completed.textContent = `Completed: ${completedCount}`;
 }
